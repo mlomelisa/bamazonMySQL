@@ -40,13 +40,13 @@ function postFunction(){
     message: 'What is the item  ID you want to buy?'
     }
   ]).then(function(answers){
-    var newItem = {
-      'id' : answers.item
-    };
-    console.log(newItem)
-    connection.query('SELECT * FROM products id = ?',newItem,function(err, response){
+    var newItem = parseInt(answers.item);
+    
+    connection.query('SELECT * FROM products WHERE item_id = ?', newItem ,function(err, response){
       if (err) throw err;
-      console.log(response);
+      console.log("You select product: " + response[0].product_name);
+      var dbItemCount = response[0].stock_quantity;
+      var dbItemPrice = response[0].price;
       
       inquirer.prompt([
         {type: 'input',
@@ -54,17 +54,21 @@ function postFunction(){
         message: 'How many items you want to buy?'
         }
       ]).then(function(answers){
-        var quantityItem = {
-          'stock_quantity' : parseInt(answers.quantity)
-        };
-        console.log(quantityItem)
-        connection.query('SELECT * FROM products id = ?',quantityItem,function(err, response){
-          if (err) throw err;
-          console.log(response);
-          
-          listAuctions();
+        var quantityItem = parseInt(answers.quantity);
         
-        })
+        if(dbItemCount >= quantityItem) {
+          
+          var newItemCount = dbItemCount - quantityItem;
+          connection.query('UPDATE products SET stock_quantity = ? WHERE item_id = ?', [newItemCount, newItem],function(err, response){
+            if (err) throw err;
+            totalAmount(quantityItem,dbItemPrice)
+            console.log('Thank you for buying with us!!')
+            process.exit();
+          });
+        } else {
+          console.log("Insufficient quantity!");
+          postFunction();
+        }
      });
     
     })
@@ -72,3 +76,7 @@ function postFunction(){
 
 }  
 
+function totalAmount(quantityItem, price){
+  var total = quantityItem * price;
+  console.log("Your Total is: " + total)
+}
