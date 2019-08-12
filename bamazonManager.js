@@ -61,9 +61,14 @@ function viewProductsforSale(){
   });
 }
 
-// function viewLowInventory(){
-
-// }
+function viewLowInventory(){
+  connection.query('SELECT * FROM products WHERE stock_quantity < 5', function(err, response) {
+    if (err) throw err;
+    
+  console.table(response)
+  main();
+  });
+ }
 
 // function addToInventory(){
 
