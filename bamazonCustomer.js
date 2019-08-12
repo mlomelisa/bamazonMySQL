@@ -47,6 +47,7 @@ function postFunction(){
       console.log("You select product: " + response[0].product_name);
       var dbItemCount = response[0].stock_quantity;
       var dbItemPrice = response[0].price;
+      var dbItemProductSale = response[0].product_sales;
       
       inquirer.prompt([
         {type: 'input',
@@ -59,12 +60,16 @@ function postFunction(){
         if(dbItemCount >= quantityItem) {
           
           var newItemCount = dbItemCount - quantityItem;
-          connection.query('UPDATE products SET stock_quantity = ? WHERE item_id = ?', [newItemCount, newItem],function(err, response){
+          var total = quantityItem * dbItemPrice;            
+          var productSale = dbItemProductSale + total;
+          connection.query('UPDATE products SET stock_quantity = ? , product_sales = ? WHERE item_id = ?', [newItemCount, productSale, newItem],function(err, response){
             if (err) throw err;
+            
             totalAmount(quantityItem,dbItemPrice)
             console.log('Thank you for buying with us!!')
             process.exit();
           });
+
         } else {
           console.log("Insufficient quantity!");
           postFunction();
@@ -78,5 +83,8 @@ function postFunction(){
 
 function totalAmount(quantityItem, price){
   var total = quantityItem * price;
+ 
   console.log("Your Total is: " + total)
+  
+
 }
