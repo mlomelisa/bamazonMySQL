@@ -79,10 +79,10 @@ function viewLowInventory(){
       }
     ]).then(function(answers){
       var itemID = parseInt(answers.item);
-      console.log(itemID)
+      
       connection.query('SELECT * FROM products WHERE item_id = ?', itemID ,function(err, response){
         if (err) throw err;
-        console.log(response)
+       
         // console.log("You select product: " + response[0].product_name);
         var dbItemCount = response[0].stock_quantity;
                 
